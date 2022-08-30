@@ -1,1 +1,2 @@
-# myGMM2
+# myGMM
+debug myGMM
