@@ -11,7 +11,7 @@ GpuGmm::GpuGmm(double LearningRate)
     temp_thr = 9.0 * covariance0 * covariance0;
     prune = -alpha * cT;     // in use
     alpha_bar = 1.0 - alpha; // in use
-    // NodePixel
+    // NodePixelGpu
 }
 
 GpuGmm::~GpuGmm()
@@ -22,10 +22,10 @@ void GpuGmm::initial(cv::Mat &orig_img)
 {
 #if DEBUGINFO
     std::cout << "orig_img: " << orig_img.step << std::endl;
-    std::cout << "sss" << sizeof(NodePixel) << std::endl;
+    std::cout << "sss" << sizeof(NodePixelGpu) << std::endl;
     std::cout << orig_img.cols << " " << orig_img.rows << std::endl;
 #endif
-    node = new NodePixel[orig_img.cols * orig_img.rows];
+    node = new NodePixelGpu[orig_img.cols * orig_img.rows];
 #if DEBUGINFO
     std::cout << "img" << std::endl;
     for (int i = 0; i < orig_img.rows; i++)
@@ -38,13 +38,13 @@ void GpuGmm::initial(cv::Mat &orig_img)
 
     std::cout << "img" << std::endl;
 #endif
-    cudaMalloc((void **)&devArray, orig_img.cols * orig_img.rows * sizeof(NodePixel));
+    cudaMalloc((void **)&devArray, orig_img.cols * orig_img.rows * sizeof(NodePixelGpu));
 
     tmpImg.upload(orig_img);
 
     InitNode(tmpImg, devArray, covariance0);
 
-    cudaMemcpy(node, devArray, orig_img.cols * orig_img.rows * sizeof(NodePixel), cudaMemcpyDeviceToHost);
+    cudaMemcpy(node, devArray, orig_img.cols * orig_img.rows * sizeof(NodePixelGpu), cudaMemcpyDeviceToHost);
 #if DEBUGINFO
     for (int i = 0; i < orig_img.cols * orig_img.rows; i++)
     {

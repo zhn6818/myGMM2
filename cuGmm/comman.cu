@@ -20,7 +20,7 @@ __global__ void initKernel(uchar* img, int step, int w, int h, float* nodeP, int
     int indexNode = x + y * w;
     char* data = (char*)nodeP + indexNode * nodeStep;
 
-    NodePixel *nodeDev = (NodePixel *)(data);
+    NodePixelGpu *nodeDev = (NodePixelGpu *)(data);
 
     int index = nodeDev->realSize;
     
@@ -40,7 +40,7 @@ void InitNode(cv::cuda::GpuMat &tmpImg, float* nodeP, double cov)
 
     const dim3 blockDim(8, 8);
 	const dim3 gridDim(iDivUp(tmpImg.cols, blockDim.x), iDivUp(tmpImg.rows,blockDim.y));
-    initKernel<<<gridDim, blockDim>>>(tmpImg.ptr<uchar>(), tmpImg.step, tmpImg.cols, tmpImg.rows, nodeP, sizeof(NodePixel), cov);
+    initKernel<<<gridDim, blockDim>>>(tmpImg.ptr<uchar>(), tmpImg.step, tmpImg.cols, tmpImg.rows, nodeP, sizeof(NodePixelGpu), cov);
 
     cudaThreadSynchronize();
 
@@ -72,7 +72,7 @@ __global__ void processKernel(uchar* out, int outStep, uchar* img, int step, int
 
     int indexNode = x + y * w;
     char* data = (char*)nodeP + indexNode * nodeStep;
-    NodePixel *nodeDev = (NodePixel *)(data);
+    NodePixelGpu *nodeDev = (NodePixelGpu *)(data);
 
     // printf("%d, %d, %f, %f, %f \n", x, y, rVal, gVal, bVal);
 
@@ -184,7 +184,7 @@ void processNode(cv::cuda::GpuMat &tmpImg, cv::cuda::GpuMat &outImg, float *node
     std::cout << std::endl;
      const dim3 blockDim(8, 8);
 	const dim3 gridDim(iDivUp(tmpImg.cols, blockDim.x), iDivUp(tmpImg.rows,blockDim.y));
-    processKernel<<<gridDim, blockDim>>>(outImg.ptr<uchar>(), outImg.step, tmpImg.ptr<uchar>(), tmpImg.step, tmpImg.cols, tmpImg.rows, nodeP, sizeof(NodePixel), cov, alpha, alpha_bar, prune, cfbar);
+    processKernel<<<gridDim, blockDim>>>(outImg.ptr<uchar>(), outImg.step, tmpImg.ptr<uchar>(), tmpImg.step, tmpImg.cols, tmpImg.rows, nodeP, sizeof(NodePixelGpu), cov, alpha, alpha_bar, prune, cfbar);
 
     cudaThreadSynchronize();
 

@@ -12,7 +12,7 @@ int main(int argc, char **argv)
 {
     // test();
     // cv::cuda::GpuMat img;
-    cv::VideoCapture capture("./50015_inverse2022-05-23-09-32-25.mp4");
+    cv::VideoCapture capture("./50035.mp4");
     if (!capture.isOpened())
     {
         std::cout << "fail to opencv video" << std::endl;
@@ -20,8 +20,8 @@ int main(int argc, char **argv)
     cv::Mat frame;
     long currentFrame = 0;
 
-    const int sizeeeH = 500;
-    const int sizeeeW = 500;
+    const int sizeeeH = 800;
+    const int sizeeeW = 1000;
 
     std::shared_ptr<GpuGmm> ptGpu = std::make_shared<GpuGmm>(0.004);
 
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
         std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!! -----------current Frame Id: -------------------    " << currentFrame << std::endl;
         currentFrame++;
 
-        cv::Mat frame2 = frame(cv::Rect(500, 500, sizeeeW, sizeeeH)).clone();
+        cv::Mat frame2 = frame(cv::Rect(100, 100, sizeeeW, sizeeeH)).clone();
         if (currentFrame == 1)
         {
             ptGpu->initial(frame2);

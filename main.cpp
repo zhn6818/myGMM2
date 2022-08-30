@@ -14,11 +14,12 @@
 #include <opencv2/core/core.hpp>
 #include "myGMM.h"
 #include "virgoGmm.h"
+#include "gpuGmm.h"
 
 int main(int argc, char **argv)
 {
 
-    cv::VideoCapture capture("./50035.mp4");
+    cv::VideoCapture capture("./50015.mp4");
     if (!capture.isOpened())
     {
         std::cout << "fail to opencv video" << std::endl;
@@ -29,20 +30,23 @@ int main(int argc, char **argv)
 
     std::shared_ptr<virGoGmm> _myGMM22 = std::make_shared<virGoGmm>(0.004);
 
+    std::shared_ptr<GpuGmm> ptGpu = std::make_shared<GpuGmm>(0.004);
+
     const int sizeeeH = 800;
-    const int sizeeeW = 500;
+    const int sizeeeW = 1000;
     cv::Mat bin_img = cv::Mat(sizeeeH, sizeeeW, CV_8UC1, cv::Scalar::all(0));
     cv::Mat bin_img2 = cv::Mat(sizeeeH, sizeeeW, CV_8UC1, cv::Scalar::all(0));
+    cv::Mat bin_img3 = cv::Mat(sizeeeH, sizeeeW, CV_8UC1, cv::Scalar::all(0));
 
     cv::VideoWriter writer;
     std::string videoWritePath = "./result/result.avi";
 
-    cv::Size writerSize = cv::Size(capture.get(CAP_PROP_FRAME_WIDTH) + sizeeeW * 2, capture.get(CAP_PROP_FRAME_HEIGHT) + sizeeeH);
+    cv::Size writerSize = cv::Size(capture.get(CAP_PROP_FRAME_WIDTH) + sizeeeW * 3, capture.get(CAP_PROP_FRAME_HEIGHT) + sizeeeH);
     writer.open(videoWritePath.c_str(), cv::VideoWriter::fourcc('D', 'I', 'V', 'X'), 20, writerSize);
 
     while (true)
     {
-        cv::Mat imgFrame = cv::Mat(capture.get(CAP_PROP_FRAME_HEIGHT) + sizeeeH, capture.get(CAP_PROP_FRAME_WIDTH) + sizeeeW * 2, CV_8UC3, cv::Scalar::all(0));
+        cv::Mat imgFrame = cv::Mat(capture.get(CAP_PROP_FRAME_HEIGHT) + sizeeeH, capture.get(CAP_PROP_FRAME_WIDTH) + sizeeeW * 3, CV_8UC3, cv::Scalar::all(0));
 
         std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!! -----------current Frame Id: -------------------    " << currentFrame << std::endl;
         if (!capture.read(frame))
@@ -59,11 +63,14 @@ int main(int argc, char **argv)
         {
             _myGMM22->initial(frame2);
             _myGMM->initial(frame2);
+            ptGpu->initial(frame2);
         }
         _myGMM->process(frame2, bin_img2);
         _myGMM22->process(frame2, bin_img);
+        ptGpu->process(frame2, bin_img3);
 
         cv::Mat diff = bin_img2 - bin_img;
+        cv::Mat diff2 = bin_img2 - bin_img3;
         //        std::vector<cv::Point> pp;
         //        cv::findNonZero(diff, pp);
 
@@ -92,10 +99,20 @@ int main(int argc, char **argv)
         cv::cvtColor(bin_img, colorB, COLOR_GRAY2BGR);
         colorB.copyTo(bin);
 
+        cv::Mat bin3 = imgFrame(cv::Rect(frame.cols + sizeeeW * 2, 0, sizeeeW, sizeeeH));
+        cv::Mat colorB3;
+        cv::cvtColor(bin_img3, colorB3, COLOR_GRAY2BGR);
+        colorB3.copyTo(bin3);
+
         cv::Mat diffTmp = imgFrame(cv::Rect(0, frame.rows, sizeeeW, sizeeeH));
         cv::Mat colorDiff;
         cv::cvtColor(diff, colorDiff, COLOR_GRAY2BGR);
         colorDiff.copyTo(diffTmp);
+
+        cv::Mat diffTmp2 = imgFrame(cv::Rect(sizeeeW, frame.rows, sizeeeW, sizeeeH));
+        cv::Mat colorDiff2;
+        cv::cvtColor(diff2, colorDiff2, COLOR_GRAY2BGR);
+        colorDiff2.copyTo(diffTmp2);
 
         // cv::imshow("frame", frame);
         writer.write(imgFrame);

@@ -7,12 +7,12 @@
 #define DEBUGINFO   0
 #define ArraySize (MaxSize + 1)
 
-struct Gaussian
+struct GaussianGpu
 {
     float covariance; // 4
     float weight;     // 4
     float mean[3];    // 12
-    Gaussian()
+    GaussianGpu()
     {
         mean[0] = 0.0;
         mean[1] = 0.0;
@@ -22,11 +22,11 @@ struct Gaussian
     }
 };
 
-struct NodePixel
+struct NodePixelGpu
 {
     float realSize;         // 4
-    Gaussian gaussian[5]; // 20 -> 1
-    NodePixel()
+    GaussianGpu gaussian[5]; // 20 -> 1
+    NodePixelGpu()
     {
         realSize = 0;
     }
@@ -42,7 +42,7 @@ public:
     double temp_thr;
     double prune;
     double alpha_bar;
-    NodePixel *node;
+    NodePixelGpu *node;
 
     float* devArray;
     cv::cuda::GpuMat tmpImg;

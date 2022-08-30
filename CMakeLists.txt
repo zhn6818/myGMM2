@@ -96,6 +96,8 @@ add_subdirectory(myGmm)
 add_executable(main main.cpp )
 target_link_libraries(main ${OpenCV_LIBS})
 target_link_libraries(main mygmm)
+target_link_libraries(main cumygmm)
+
 
 include_directories("${PROJECT_SOURCE_DIR}/cuGmm")
 add_subdirectory(cuGmm)
