@@ -19,18 +19,18 @@
 int main(int argc, char **argv)
 {
 
-    cv::VideoCapture capture("./50015.mp4");
+    cv::VideoCapture capture("./50035.mp4");
     if (!capture.isOpened())
     {
         std::cout << "fail to opencv video" << std::endl;
     }
     cv::Mat frame;
     long currentFrame = 0;
-    std::shared_ptr<myGMM> _myGMM = std::make_shared<myGMM>(0.004);
+    std::shared_ptr<myGMM> _myGMM = std::make_shared<myGMM>(0.04);
 
-    std::shared_ptr<virGoGmm> _myGMM22 = std::make_shared<virGoGmm>(0.004);
+    std::shared_ptr<virGoGmm> _myGMM22 = std::make_shared<virGoGmm>(0.04);
 
-    std::shared_ptr<GpuGmm> ptGpu = std::make_shared<GpuGmm>(0.004);
+    std::shared_ptr<GpuGmm> ptGpu = std::make_shared<GpuGmm>(0.04);
 
     const int sizeeeH = 800;
     const int sizeeeW = 1000;

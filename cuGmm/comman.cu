@@ -148,13 +148,14 @@ __global__ void processKernel(uchar* out, int outStep, uchar* img, int step, int
             nodeDev->gaussian[m].weight /= sum;
         }
         // printf("back %d, ", background);
-        out[y * outStep + x] = (uchar)background;
+        
 
         
-        for (int m = nodeDev->realSize - 1; m > 0 && (m - 1) > 0; m--)
+        for (int m = nodeDev->realSize - 1; m > 0 && (m - 1) >= 0; m--)
         {
             if(nodeDev->gaussian[m].weight > nodeDev->gaussian[m - 1].weight)
             {
+                // printf("%f, %f, %f \n", *((float*)nodeDev->gaussian[m]), *((float*)nodeDev->gaussian[m] + 1), *((float*)nodeDev->gaussian[m] + 2));
                 float t1 = nodeDev->gaussian[m].mean[0];
                 float t2 = nodeDev->gaussian[m].mean[1];
                 float t3 = nodeDev->gaussian[m].mean[2];
@@ -172,6 +173,8 @@ __global__ void processKernel(uchar* out, int outStep, uchar* img, int step, int
                 nodeDev->gaussian[m - 1].weight = t5;
             }
         }
+
+        out[y * outStep + x] = (uchar)background;
     // }
 
 }

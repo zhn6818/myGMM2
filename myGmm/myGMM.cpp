@@ -595,6 +595,7 @@ void myGMM::process(Mat &orig_img, Mat &bin_img)
             N_ptr->pixel_r = rear;
 #if DEBUG_INFO
             std::cout << std::endl;
+            red_print("end");
 #endif
             *b_ptr++ = background;
 
@@ -602,7 +603,7 @@ void myGMM::process(Mat &orig_img, Mat &bin_img)
             while (ptr != NULL)
             {
 #if DEBUG_INFO
-                red_print("end");
+                // 
                 std::cout << "  bac ptr->weight:" << ptr->weight;
                 std::cout << ", meanval: mean[0]: " << ptr->mean[0] << ", mean[1]: " << ptr->mean[1] << ", mean[2]: " << ptr->mean[2] << ", weight: " << ptr->weight << ", covariance: " << ptr->covariance ;
                 std::cout << std::endl;
