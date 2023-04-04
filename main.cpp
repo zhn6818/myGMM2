@@ -81,8 +81,8 @@ int main(int argc, char **argv)
         }
         cv::Mat imgFrame = cv::Mat(SizeH * 3, SizeW * 3, CV_8UC3, cv::Scalar::all(0));
         cv::resize(frame, frame, cv::Size(SizeW, SizeH));
-        cv::Mat frame2 = frame;
-
+        cv::Mat frame2 = frame.clone();
+        medianBlur(frame2, frame2, 5);
         if (currentFrame == 0)
         {
             ptGpu->initial(frame2);
@@ -98,7 +98,7 @@ int main(int argc, char **argv)
 
         cv::Mat tmp = imgFrame(cv::Rect(0, 0, (int)frame.cols, (int)frame.rows));
         cv::putText(frame, std::to_string(currentFrame), cv::Point(100, 100), cv::FONT_HERSHEY_SIMPLEX, 2, cv::Scalar(0, 0, 255));
-        frame.copyTo(tmp);
+        frame2.copyTo(tmp);
 
         cv::Mat bin3 = imgFrame(cv::Rect(frame.cols, 0, frame.cols, frame.rows));
         cv::Mat colorB3;
@@ -117,6 +117,18 @@ int main(int argc, char **argv)
         cv::Mat imgBack2 = ptGpu2->getBackImg();
         cv::Mat bin5 = imgFrame(cv::Rect(frame.cols, frame.rows, frame.cols, frame.rows));
         imgBack2.copyTo(bin5);
+
+        int bin = 4;
+        cv::Mat result = cv::Mat(frame.rows / bin, frame.cols / bin, CV_32FC1, cv::Scalar::all(0));
+        caculateSim(imgBack2, imgBack, result, bin);
+
+        cv::Mat resultFray;
+        result.convertTo(resultFray, CV_8UC1, 255);
+        cv::resize(resultFray, resultFray, cv::Size(frame.cols, frame.rows));
+        cv::Mat resultcolor;
+        cv::cvtColor(resultFray, resultcolor, COLOR_GRAY2BGR);
+        cv::Mat bin6 = imgFrame(cv::Rect(0, 2 * frame.rows, frame.cols, frame.rows));
+        resultcolor.copyTo(bin6);
 
         writer.write(imgFrame);
         std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!! -----------current Frame Id: -------------------    " << currentFrame++ << std::endl;

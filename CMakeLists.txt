@@ -8,7 +8,7 @@ add_definitions(-O0 -g)
 find_package(CUDA REQUIRED)
 set(CUDA_NVCC_FLAGS
     ${CUDA_NVCC_FLAGS};
-    -O3
+    -O0
     -gencode arch=compute_52,code=sm_52
     -gencode arch=compute_60,code=sm_60
     -gencode arch=compute_61,code=sm_61
@@ -25,7 +25,7 @@ set(CMAKE_CXX_FLAGS "-g  -std=c++11 -Wno-error=deprecated-declarations -Wno-depr
 
 
 
-set(HOST_PATH /data2/virgo_3rdparty)
+set(HOST_PATH /data1/virgo_3rdparty)
 if (EXISTS ${HOST_PATH})
     set(OpenCV_INCLUDE_DIRS 
     ${HOST_PATH}/opencv/include

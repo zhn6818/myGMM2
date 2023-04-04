@@ -275,7 +275,7 @@ void processDiff(cv::cuda::GpuMat &img1, cv::cuda::GpuMat& img2, cv::cuda::GpuMa
     cudaThreadSynchronize();
 }
 
-__global__ void processDiffKernel(uchar* img1, uchar* img2, uchar* result, int w, int h, int binSize)
+__global__ void caculateSim(uchar* img1, int img1step, uchar* img2, int img2step, float* result, int resizeStep, int w, int h, int binSize)
 {
     const int x = blockDim.x * blockIdx.x + threadIdx.x;
     const int y = blockDim.y * blockIdx.y + threadIdx.y;
@@ -285,9 +285,9 @@ __global__ void processDiffKernel(uchar* img1, uchar* img2, uchar* result, int w
     float sum = 0;
     float sum1 = 0;
     float sum2 = 0;
-    for(int i = x; i < x + binSize; i ++)
+    for(int i = x * binSize; i < x * binSize + binSize; i ++)
     {
-        for(int j = y; j < y + binSize; i++)
+        for(int j = y * binSize; j < y * binSize + binSize; j++)
         {
             int b = img1[j * img1step + i * 3];
             int g = img1[j * img1step + i * 3 + 1];
@@ -296,8 +296,21 @@ __global__ void processDiffKernel(uchar* img1, uchar* img2, uchar* result, int w
             int b1 = img2[j * img2step + i * 3];
             int g1 = img2[j * img2step + i * 3 + 1];
             int r1 = img2[j * img2step + i * 3 + 2];
+            // if(x == 20 && y == 20)
+            // {
+            //     printf("%d, %d, %d, %d \n", i, j, b, b1);
+            // }
+            sum += (b - b1) * (b - b1);
+            sum1 += b * b;
+            sum2 += b1 * b1;
         }
     }
+    float value = (sum / (std::sqrt(sum1) * std::sqrt(sum2)));
+    // if(x == 20 && y == 20)
+    // {
+    //     printf("%f ,%f \n", sum, value);
+    // }
+    result[y * resizeStep + x] = value;
 }
 
 void caculateSim(cv::Mat &img1, cv::Mat &img2, cv::Mat& result, int binSize)
@@ -305,16 +318,17 @@ void caculateSim(cv::Mat &img1, cv::Mat &img2, cv::Mat& result, int binSize)
     cv::cuda::GpuMat img1Gpu, img2Gpu, resultGpu;
     img1Gpu.upload(img1);
     img2Gpu.upload(img2);
-
+    resultGpu.upload(result);
     int sizeH = img1.rows / binSize;
     int sizeW = img1.cols / binSize;
 
     const dim3 blockDim(8, 8);
-    const dim3 gridDim(iDivUp(sizeW, blockDim.x), iDivUp(sizeH,blockDim.y));
+    const dim3 gridDim(iDivUp(sizeW, blockDim.x), iDivUp(sizeH,blockDim.y)); 
 
-    caculateSim<<<gridDim, blockDim>>>(img1Gpu.ptr<uchar>(), img2Gpu.ptr<uchar>(), resultGpu.ptr<uchar>(), sizeW, sizeH, binSize););
+    caculateSim<<<gridDim, blockDim>>>(img1Gpu.ptr<uchar>(), img1Gpu.step, img2Gpu.ptr<uchar>(), img2Gpu.step, resultGpu.ptr<float>(), resultGpu.step / sizeof(float), sizeW, sizeH, binSize);
 
     resultGpu.download(result);
+    std::cout << std::endl;
 }
 
 
