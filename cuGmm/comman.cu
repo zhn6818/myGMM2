@@ -21,7 +21,7 @@ __global__ void initKernel(uchar* img, int step, int w, int h, float* nodeP, int
     char* data = (char*)nodeP + indexNode * nodeStep;
 
     NodePixelGpu *nodeDev = (NodePixelGpu *)(data);
-
+    nodeDev->realSize = 0;
     int index = nodeDev->realSize;
     
     nodeDev->gaussian[index].mean[0] = b;
@@ -30,7 +30,12 @@ __global__ void initKernel(uchar* img, int step, int w, int h, float* nodeP, int
     nodeDev->gaussian[index].covariance = cov;
     nodeDev->gaussian[index].weight = 1.0;
     nodeDev->realSize = nodeDev->realSize + 1;
-
+    // if(y == 500 && x == 500)
+    // {
+    //     printf("Dev realSize： %f \n", nodeDev->realSize);
+    //     printf("%d, %d, %f, %f, %f %f\n", x, y, (float)nodeDev->gaussian[0].mean[0], (float)nodeDev->gaussian[0].mean[1], (float)nodeDev->gaussian[0].mean[2], nodeDev->realSize);
+    //     printf("%d, %d %d \n", (int)b, (int)g, (int)r);
+    // }
 }
 
 
@@ -75,7 +80,10 @@ __global__ void processKernel(uchar* out, int outStep, uchar* img, int step, int
     NodePixelGpu *nodeDev = (NodePixelGpu *)(data);
 
     // printf("%d, %d, %f, %f, %f \n", x, y, rVal, gVal, bVal);
-
+    // if(y == 500 && x == 500)
+    // {
+    //     printf("%d, %d, %f, %f, %f %f\n", x, y, nodeDev->gaussian[0].mean[0], nodeDev->gaussian[0].mean[1], nodeDev->gaussian[0].mean[2], nodeDev->realSize);
+    // }
     // if(x == 0 && y == 0)
     // {
         if(nodeDev->realSize > MaxSize)
@@ -148,9 +156,6 @@ __global__ void processKernel(uchar* out, int outStep, uchar* img, int step, int
             nodeDev->gaussian[m].weight /= sum;
         }
         // printf("back %d, ", background);
-        
-
-        
         for (int m = nodeDev->realSize - 1; m > 0 && (m - 1) >= 0; m--)
         {
             if(nodeDev->gaussian[m].weight > nodeDev->gaussian[m - 1].weight)
@@ -184,89 +189,133 @@ __global__ void processKernel(uchar* out, int outStep, uchar* img, int step, int
 void processNode(cv::cuda::GpuMat &tmpImg, cv::cuda::GpuMat &outImg, float *nodeP, double cov, double alpha, double alpha_bar, double prune, double cfbar)
 {
     assert(tmpImg.cols == outImg.cols && tmpImg.rows == outImg.rows);
-    std::cout << std::endl;
-     const dim3 blockDim(8, 8);
+    // std::cout << std::endl;
+    const dim3 blockDim(8, 8);
 	const dim3 gridDim(iDivUp(tmpImg.cols, blockDim.x), iDivUp(tmpImg.rows,blockDim.y));
     processKernel<<<gridDim, blockDim>>>(outImg.ptr<uchar>(), outImg.step, tmpImg.ptr<uchar>(), tmpImg.step, tmpImg.cols, tmpImg.rows, nodeP, sizeof(NodePixelGpu), cov, alpha, alpha_bar, prune, cfbar);
 
     cudaThreadSynchronize();
 
-    std::cout << std::endl;
+    // std::cout << std::endl;
+}
+
+__global__ void getImgKernel(uchar* imgGmm, int step, int h, int w, float* nodeP, int nodeStep)
+{
+    const int x = blockDim.x * blockIdx.x + threadIdx.x;
+    const int y = blockDim.y * blockIdx.y + threadIdx.y;
+	
+    if (x >= w || y >= h)
+        return;
+
+    int indexNode = x + y * w;
+    char* data = (char*)nodeP + indexNode * nodeStep;
+    NodePixelGpu *nodeDev = (NodePixelGpu *)(data);
+
+    float b = nodeDev->gaussian[0].mean[0];
+    float g = nodeDev->gaussian[0].mean[1];
+    float r = nodeDev->gaussian[0].mean[2];
+
+
+    imgGmm[y * step + x * 3] = static_cast<uchar>(b);
+    imgGmm[y * step + x * 3 + 1] = static_cast<uchar>(g);
+    imgGmm[y * step + x * 3 + 2] = static_cast<uchar>(r);
+
+    // if(y == 450 && x == 650)
+    // {
+    //     printf("ttttttttt%d, %d, %f, %f, %f %f\n", x, y, nodeDev->gaussian[0].mean[0], nodeDev->gaussian[0].mean[1], nodeDev->gaussian[0].mean[2], nodeDev->realSize);
+    //     printf("%d %d %d \n", (int)imgGmm[y * step + x * 3], (int)imgGmm[y * step + x * 3 + 1], (int)imgGmm[y * step + x * 3 + 2]);
+    // }
 }
 
 
-//声明CUDA纹理
-texture<uchar4, cudaTextureType2D, cudaReadModeNormalizedFloat> refTex1;
-texture<uchar4, cudaTextureType2D, cudaReadModeNormalizedFloat> refTex2;
-//声明CUDA数组
-cudaArray *cuArray1;
-cudaArray *cuArray2;
-//通道数
-cudaChannelFormatDesc cuDesc = cudaCreateChannelDesc<uchar4>();
-
-
-__global__ void weightAddKerkel(uchar *pDstImgData, int imgHeight, int imgWidth,int channels)
+void GetNode(cv::cuda::GpuMat &imgGmm, float *nodeP)
 {
-    const int tidx=blockDim.x*blockIdx.x+threadIdx.x;
-    const int tidy=blockDim.y*blockIdx.y+threadIdx.y;
+    // assert(imgGmm.cols == outImg.cols && imgGmm.rows == outImg.rows);
+    const dim3 blockDim(8, 8);
+	const dim3 gridDim(iDivUp(imgGmm.cols, blockDim.x), iDivUp(imgGmm.rows,blockDim.y));
+    // std::cout << "imgGmm: " << imgGmm.cols << " " << imgGmm.rows << " " << std::endl;
+    getImgKernel<<<gridDim, blockDim>>>(imgGmm.ptr<uchar>(), imgGmm.step, imgGmm.rows, imgGmm.cols, nodeP, sizeof(NodePixelGpu));
+    cudaThreadSynchronize();
+}
 
-    if (tidx<imgWidth && tidy<imgHeight)
+__global__ void processDiffKernel(uchar* img1, int img1step, int w, int h, uchar* img2, int img2step, uchar* src, int srcstep, uchar* result, int resultstep)
+{
+    const int x = blockDim.x * blockIdx.x + threadIdx.x;
+    const int y = blockDim.y * blockIdx.y + threadIdx.y;
+
+    if (x >= w || y >= h)
+        return;
+
+    int b = img1[y * img1step + x * 3];
+    int g = img1[y * img1step + x * 3 + 1];
+    int r = img1[y * img1step + x * 3 + 2];
+
+    int b1 = img2[y * img2step + x * 3];
+    int g1 = img2[y * img2step + x * 3 + 1];
+    int r1 = img2[y * img2step + x * 3 + 2];
+
+    int diffb = abs(b1 - b);
+    int diffg = abs(g1 - g);
+    int diffr = abs(r1 - r);
+
+    if(sqrt(float(diffb * diffb + diffr * diffr + diffg * diffg)) > 200)
     {
-        float4 lenaBGR,moonBGR;
-        //使用tex2D函数采样纹理
-        lenaBGR=tex2D(refTex1, tidx, tidy);
-        moonBGR=tex2D(refTex2, tidx, tidy);
-
-        int idx=(tidy*imgWidth+tidx)*channels;
-        float alpha=0.5;
-        pDstImgData[idx+0]=(alpha*lenaBGR.x+(1-alpha)*moonBGR.x)*255;
-        pDstImgData[idx+1]=(alpha*lenaBGR.y+(1-alpha)*moonBGR.y)*255;
-        pDstImgData[idx+2]=(alpha*lenaBGR.z+(1-alpha)*moonBGR.z)*255;
-        pDstImgData[idx+3]=0;
+        result[y * resultstep + x * 3] = 255;
+        result[y * resultstep + x * 3 + 1] = 255;
+        result[y * resultstep + x * 3 + 2] = 255;
     }
 }
 
-void test(uchar* input1, uchar* input2, int imgWidth, int imgHeight, int channels, cv::Mat& tmp)
+void processDiff(cv::cuda::GpuMat &img1, cv::cuda::GpuMat& img2, cv::cuda::GpuMat& src, cv::cuda::GpuMat& result)
 {
-    //设置纹理属性
-    cudaError_t t;
-    refTex1.addressMode[0] = cudaAddressModeClamp;
-    refTex1.addressMode[1] = cudaAddressModeClamp;
-    refTex1.normalized = false;
-    refTex1.filterMode = cudaFilterModeLinear;
-    //绑定cuArray到纹理
-    cudaMallocArray(&cuArray1, &cuDesc, imgWidth, imgHeight);
-    t = cudaBindTextureToArray(refTex1, cuArray1);
-
-    refTex2.addressMode[0] = cudaAddressModeClamp;
-    refTex2.addressMode[1] = cudaAddressModeClamp;
-    refTex2.normalized = false;
-    refTex2.filterMode = cudaFilterModeLinear;
-     cudaMallocArray(&cuArray2, &cuDesc, imgWidth, imgHeight);
-    t = cudaBindTextureToArray(refTex2, cuArray2);
-
-    //拷贝数据到cudaArray
-    t=cudaMemcpyToArray(cuArray1, 0,0, input1, imgWidth*imgHeight*sizeof(uchar)*channels, cudaMemcpyHostToDevice);
-    t=cudaMemcpyToArray(cuArray2, 0,0, input2, imgWidth*imgHeight*sizeof(uchar)*channels, cudaMemcpyHostToDevice);
-
-    //输出图像
-    cv::Mat dstImg = cv::Mat(imgHeight, imgWidth, CV_8UC4, cv::Scalar::all(0));
-    // cv::Mat::zeros(imgHeight, imgWidth, cv::CV_8UC4);
-    uchar *pDstImgData=NULL;
-    t=cudaMalloc(&pDstImgData, imgHeight*imgWidth*sizeof(uchar)*channels);
-
-    //核函数，实现两幅图像加权和
-    dim3 block(8,8);
-    dim3 grid( (imgWidth+block.x-1)/block.x, (imgHeight+block.y-1)/block.y );
-    weightAddKerkel<<<grid, block, 0>>>(pDstImgData, imgHeight, imgWidth, channels);
+    assert(img1.cols == img2.cols && img1.rows == img2.rows);
+    const dim3 blockDim(8, 8);
+	const dim3 gridDim(iDivUp(img1.cols, blockDim.x), iDivUp(img1.rows,blockDim.y));
+    processDiffKernel<<<gridDim, blockDim>>>(img1.ptr<uchar>(), img1.step, img1.cols, img1.rows, img2.ptr<uchar>(), img2.step, src.ptr<uchar>(), src.step, result.ptr<uchar>(), result.step);
     cudaThreadSynchronize();
-
-    //从GPU拷贝输出数据到CPU
-    t=cudaMemcpy(dstImg.data, pDstImgData, imgWidth*imgHeight*sizeof(uchar)*channels, cudaMemcpyDeviceToHost);
-    tmp = dstImg.clone();
-    // cv::imwrite("data/result.png", dstImg);
 }
 
+__global__ void processDiffKernel(uchar* img1, uchar* img2, uchar* result, int w, int h, int binSize)
+{
+    const int x = blockDim.x * blockIdx.x + threadIdx.x;
+    const int y = blockDim.y * blockIdx.y + threadIdx.y;
+
+    if (x >= w || y >= h)
+        return;
+    float sum = 0;
+    float sum1 = 0;
+    float sum2 = 0;
+    for(int i = x; i < x + binSize; i ++)
+    {
+        for(int j = y; j < y + binSize; i++)
+        {
+            int b = img1[j * img1step + i * 3];
+            int g = img1[j * img1step + i * 3 + 1];
+            int r = img1[j * img1step + i * 3 + 2];
+
+            int b1 = img2[j * img2step + i * 3];
+            int g1 = img2[j * img2step + i * 3 + 1];
+            int r1 = img2[j * img2step + i * 3 + 2];
+        }
+    }
+}
+
+void caculateSim(cv::Mat &img1, cv::Mat &img2, cv::Mat& result, int binSize)
+{
+    cv::cuda::GpuMat img1Gpu, img2Gpu, resultGpu;
+    img1Gpu.upload(img1);
+    img2Gpu.upload(img2);
+
+    int sizeH = img1.rows / binSize;
+    int sizeW = img1.cols / binSize;
+
+    const dim3 blockDim(8, 8);
+    const dim3 gridDim(iDivUp(sizeW, blockDim.x), iDivUp(sizeH,blockDim.y));
+
+    caculateSim<<<gridDim, blockDim>>>(img1Gpu.ptr<uchar>(), img2Gpu.ptr<uchar>(), resultGpu.ptr<uchar>(), sizeW, sizeH, binSize););
+
+    resultGpu.download(result);
+}
 
 
 

@@ -92,42 +92,42 @@
 //     // waitKey(0);
 //     return 0;
 // }
-#include <opencv2/opencv.hpp>
-#include <opencv2/core.hpp>
-#include <opencv2/ximgproc.hpp>
-#include <opencv2/opencv.hpp>
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/video/video.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/core/core.hpp>
-#include <iostream>
-#include <string>
-#include <cuda.h>
-#include <cuda_runtime.h>
-#include <device_launch_parameters.h>
-#include "comman.h"
+// #include <opencv2/opencv.hpp>
+// #include <opencv2/core.hpp>
+// #include <opencv2/ximgproc.hpp>
+// #include <opencv2/opencv.hpp>
+// #include <opencv2/core/core.hpp>
+// #include <opencv2/imgproc/imgproc.hpp>
+// #include <opencv2/highgui/highgui.hpp>
+// #include <opencv2/video/video.hpp>
+// #include <opencv2/highgui/highgui.hpp>
+// #include <opencv2/core/core.hpp>
+// #include <iostream>
+// #include <string>
+// #include <cuda.h>
+// #include <cuda_runtime.h>
+// #include <device_launch_parameters.h>
+// #include "comman.h"
 
-// using namespace std;
-// using namespace cv;
+// // using namespace std;
+// // using namespace cv;
 
-int main(int argc, char **argv)
-{
-    cv::Mat Lena = cv::imread("./data/lena.jpg");
-    cv::Mat moon = cv::imread("./data/moon.jpg");
-    cv::cvtColor(Lena, Lena, cv::COLOR_BGR2BGRA);
-    cv::cvtColor(moon, moon, cv::COLOR_BGR2BGRA);
+// int main(int argc, char **argv)
+// {
+//     cv::Mat Lena = cv::imread("./data/lena.jpg");
+//     cv::Mat moon = cv::imread("./data/moon.jpg");
+//     cv::cvtColor(Lena, Lena, cv::COLOR_BGR2BGRA);
+//     cv::cvtColor(moon, moon, cv::COLOR_BGR2BGRA);
 
-    int imgWidth = Lena.cols;
-    int imgHeight = Lena.rows;
-    int channels = Lena.channels();
+//     int imgWidth = Lena.cols;
+//     int imgHeight = Lena.rows;
+//     int channels = Lena.channels();
 
-    cv::Mat tmp;
-    test(Lena.ptr<uchar>(), moon.ptr<uchar>(), imgWidth, imgHeight, channels, tmp);
-    cv::cvtColor(tmp, tmp, cv::COLOR_BGRA2BGR);
-    cv::imwrite("./data/result.png", tmp);
-    std::cout << "run over, has imwrite img" << std::endl;
-    //显示
-    return 0;
-}
+//     cv::Mat tmp;
+//     test(Lena.ptr<uchar>(), moon.ptr<uchar>(), imgWidth, imgHeight, channels, tmp);
+//     cv::cvtColor(tmp, tmp, cv::COLOR_BGRA2BGR);
+//     cv::imwrite("./data/result.png", tmp);
+//     std::cout << "run over, has imwrite img" << std::endl;
+//     //显示
+//     return 0;
+// }

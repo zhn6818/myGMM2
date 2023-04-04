@@ -9,7 +9,14 @@ find_package(CUDA REQUIRED)
 set(CUDA_NVCC_FLAGS
     ${CUDA_NVCC_FLAGS};
     -O3
+    -gencode arch=compute_52,code=sm_52
+    -gencode arch=compute_60,code=sm_60
+    -gencode arch=compute_61,code=sm_61
+    -gencode arch=compute_62,code=sm_62
+    -gencode arch=compute_70,code=sm_70
     -gencode arch=compute_75,code=sm_75
+    -gencode arch=compute_80,code=sm_80
+    -gencode arch=compute_86,code=sm_86
 )
 
 
@@ -18,36 +25,34 @@ set(CMAKE_CXX_FLAGS "-g  -std=c++11 -Wno-error=deprecated-declarations -Wno-depr
 
 
 
-set(HOST_PATH /data1/gcy/software/3rdparty)
+set(HOST_PATH /data2/virgo_3rdparty)
 if (EXISTS ${HOST_PATH})
-    set(OpenCV_INCLUDE_DIRS /data1/gcy/software/3rdparty/opencv_cuda_400)
+    set(OpenCV_INCLUDE_DIRS 
+    ${HOST_PATH}/opencv/include
+    ${HOST_PATH}/opencv/include/opencv4
+    ${HOST_PATH}/opencv/include/opencv4/opencv2)
     set(OpenCV_LIBS
-    ${HOST_PATH}/opencv_cuda_400/lib/libopencv_core.so
-    ${HOST_PATH}/opencv_cuda_400/lib/libopencv_imgproc.so
-    ${HOST_PATH}/opencv_cuda_400/lib/libopencv_ximgproc.so
-    ${HOST_PATH}/opencv_cuda_400/lib/libopencv_highgui.so
-    ${HOST_PATH}/opencv_cuda_400/lib/libopencv_imgcodecs.so
-    ${HOST_PATH}/opencv_cuda_400/lib/libopencv_videoio.so
-    ${HOST_PATH}/opencv_cuda_400/lib/libopencv_video.so
-    ${HOST_PATH}/opencv_cuda_400/lib/libopencv_dnn.so
-    ${HOST_PATH}/opencv_cuda_400/lib/libopencv_cudaimgproc.so
-    ${HOST_PATH}/opencv_cuda_400/lib/libopencv_cudaarithm.so
-    ${HOST_PATH}/opencv_cuda_400/lib/libopencv_tracking.so
-    ${HOST_PATH}/opencv_cuda_400/lib/libopencv_cudawarping.so
-    ${HOST_PATH}/opencv_cuda_400/lib/libopencv_optflow.so
-    # ${HOST_PATH}/opencv_cuda_400/lib/libopencv_cudaoptflow.so
-    ${HOST_PATH}/opencv_cuda_400/lib/libopencv_cudaimgproc.so
-    ${HOST_PATH}/opencv_cuda_400/lib/libopencv_calib3d.so
-    ${HOST_PATH}/opencv_cuda_400/lib/libopencv_features2d.so
-    ${HOST_PATH}/opencv_cuda_400/lib/libopencv_cudacodec.so
-    ${HOST_PATH}/opencv_cuda_400/lib/libopencv_photo.so
-    ${HOST_PATH}/opencv_cuda_400/lib/libopencv_xfeatures2d.so
-    ${HOST_PATH}/ffmpeg/libavcodec.so.58
-    ${HOST_PATH}/ffmpeg/libavformat.so.58
-    ${HOST_PATH}/ffmpeg/libavutil.so.56
-    ${HOST_PATH}/ffmpeg/libswscale.so.5
-    ${HOST_PATH}/ffmpeg/libavdevice.so.58 
-    ${HOST_PATH}/ffmpeg/libswresample.so.3)
+    ${HOST_PATH}/opencv/lib/libopencv_core.so
+    ${HOST_PATH}/opencv/lib/libopencv_imgproc.so
+    ${HOST_PATH}/opencv/lib/libopencv_ximgproc.so
+    ${HOST_PATH}/opencv/lib/libopencv_highgui.so
+    ${HOST_PATH}/opencv/lib/libopencv_imgcodecs.so
+    ${HOST_PATH}/opencv/lib/libopencv_videoio.so
+    ${HOST_PATH}/opencv/lib/libopencv_video.so
+    ${HOST_PATH}/opencv/lib/libopencv_dnn.so
+    ${HOST_PATH}/opencv/lib/libopencv_cudaimgproc.so
+    ${HOST_PATH}/opencv/lib/libopencv_cudaarithm.so
+    ${HOST_PATH}/opencv/lib/libopencv_tracking.so
+    ${HOST_PATH}/opencv/lib/libopencv_cudawarping.so
+    ${HOST_PATH}/opencv/lib/libopencv_optflow.so
+    # ${HOST_PATH}/opencv/lib/libopencv_cudaoptflow.so
+    ${HOST_PATH}/opencv/lib/libopencv_cudaimgproc.so
+    ${HOST_PATH}/opencv/lib/libopencv_calib3d.so
+    ${HOST_PATH}/opencv/lib/libopencv_features2d.so
+    ${HOST_PATH}/opencv/lib/libopencv_cudacodec.so
+    ${HOST_PATH}/opencv/lib/libopencv_photo.so
+    ${HOST_PATH}/opencv/lib/libopencv_xfeatures2d.so
+)
 ELSE()
     find_package(OpenCV REQUIRED)
 ENDIF()
@@ -76,14 +81,11 @@ include_directories(
     )
 
 
-set(ONNXRUNTIME_ROOT_PATH /data1/code/_onnxruntime/onnxruntime)
-set(TENSORRT_HOME /data1/soft/TensorRT-8.4.2.4/lib)
+set(ONNXRUNTIME_ROOT_PATH ${HOST_PATH}/onnxruntime)
 set(ONNXRUNTIME_INCLUDE_DIRS ${ONNXRUNTIME_ROOT_PATH}/include/onnxruntime
-        ${ONNXRUNTIME_ROOT_PATH}/onnxruntime
-        ${ONNXRUNTIME_ROOT_PATH}/include/onnxruntime/core/session/
-        # ${ONNXRUNTIME_ROOT_PATH}/onnxruntime/core/providers/cuda
-
-        )
+    ${ONNXRUNTIME_ROOT_PATH}/onnxruntime
+    ${ONNXRUNTIME_ROOT_PATH}/include/onnxruntime/core/session/
+    )
 set(ONNXRUNTIME_LIB ${ONNXRUNTIME_ROOT_PATH}/build/Linux/Release/libonnxruntime.so)
 
 
@@ -104,8 +106,9 @@ add_subdirectory(cuGmm)
 add_executable(test test.cpp)
 target_link_libraries(test ${OpenCV_LIBS})
 target_link_libraries(test cumygmm)
+target_link_libraries(test mygmm)
 
-add_subdirectory(testscript)
+# add_subdirectory(testscript)
 
 add_subdirectory(threadPool)
 
