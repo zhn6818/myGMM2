@@ -2,6 +2,7 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <opencv2/cudaobjdetect.hpp>
+#include <opencv2/cudafilters.hpp>
 #include "cuda_runtime_api.h"
 #define MaxSize 4
 #define DEBUGINFO 0

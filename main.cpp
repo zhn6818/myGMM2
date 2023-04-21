@@ -57,6 +57,8 @@ int main(int argc, char **argv)
     cv::Mat frame;
     long currentFrame = 0;
 
+    
+
     std::shared_ptr<GpuGmm> ptGpu = std::make_shared<GpuGmm>(0.004);
     std::shared_ptr<GpuGmm> ptGpu2 = std::make_shared<GpuGmm>(0.0002);
 

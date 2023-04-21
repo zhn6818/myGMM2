@@ -69,6 +69,7 @@ void GpuGmm::process(cv::Mat &orig_img, cv::Mat &bin_img)
     outImg.upload(bin_img);
     processNode(tmpImg, outImg, devArray, covariance0, alpha, alpha_bar, prune, cfbar);
     outImg.download(bin_img);
+    
     // std::cout << "bin img : " << (int)bin_img.at<uchar>(0, 0) << std::endl;
     // std::cout << std::endl;
 }

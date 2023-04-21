@@ -37,6 +37,7 @@ if (EXISTS ${HOST_PATH})
     ${HOST_PATH}/opencv/lib/libopencv_ximgproc.so
     ${HOST_PATH}/opencv/lib/libopencv_highgui.so
     ${HOST_PATH}/opencv/lib/libopencv_imgcodecs.so
+    ${HOST_PATH}/opencv/lib/libopencv_cudafilters.so
     ${HOST_PATH}/opencv/lib/libopencv_videoio.so
     ${HOST_PATH}/opencv/lib/libopencv_video.so
     ${HOST_PATH}/opencv/lib/libopencv_dnn.so
@@ -113,5 +114,7 @@ target_link_libraries(test mygmm)
 add_subdirectory(threadPool)
 
 add_subdirectory(ort)
+
+add_subdirectory(kmeans_gmm)
 
 

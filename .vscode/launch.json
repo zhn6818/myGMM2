@@ -85,6 +85,15 @@
             "args": [],
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "build"
+        },
+        {
+            "type": "cppdbg",
+            "request": "launch",
+            "name": "kmeans",
+            "program": "${workspaceFolder}/build/kmeans_gmm/kmeans",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "build"
         }
     ]
 }
