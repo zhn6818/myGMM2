@@ -4,7 +4,6 @@
     // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
         {
             "type": "cppdbg",
             "request": "launch",
@@ -92,6 +91,19 @@
             "name": "kmeans",
             "program": "${workspaceFolder}/build/kmeans_gmm/kmeans",
             "args": [],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "build"
+        },
+        {
+            "type": "cppdbg",
+            "request": "launch",
+            "name": "kmeans_main",
+            "program": "${workspaceFolder}/build/kmeans_gmm/kmeans_main",
+            "args": [
+                "kmeans_gmm/input.txt",
+                "2",
+                "kmeans_gmm"
+            ],
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "build"
         }

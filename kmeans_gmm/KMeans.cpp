@@ -164,6 +164,7 @@ void KMeans::Cluster(double *data, int N, int *Label)
     // Initialize model
     Init(data, N);
 
+
     // Recursion
     double *x = new double[m_dimNum]; // Sample data
     int label = -1;                   // Class index
@@ -202,7 +203,7 @@ void KMeans::Cluster(double *data, int N, int *Label)
             for (int d = 0; d < m_dimNum; d++)
             {
                 next_means[label][d] += x[d];
-            }
+            } 
         }
         currCost /= size;
 
