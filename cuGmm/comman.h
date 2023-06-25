@@ -23,3 +23,4 @@ void processDiff(cv::cuda::GpuMat &img1, cv::cuda::GpuMat &img2, cv::cuda::GpuMa
 void caculateSim(cv::Mat &img1, cv::Mat &img2, cv::Mat& result, int binSize);
 
 // void test(uchar *input1, uchar *input2, int imgWidth, int imgHeight, int channels, cv::Mat& tmp);
+

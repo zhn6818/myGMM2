@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.mlu": "cuda",
         "ostream": "cpp",
         "future": "cpp",
         "new": "cpp",
@@ -66,6 +67,10 @@
         "thread": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp",
-        "__nullptr": "cpp"
+        "__nullptr": "cpp",
+        "forward_list": "cpp",
+        "filesystem": "cpp",
+        "typeindex": "cpp",
+        "valarray": "cpp"
     }
 }
