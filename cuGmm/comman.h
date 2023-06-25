@@ -20,7 +20,8 @@ void GetNode(cv::cuda::GpuMat &imgGmm, float *nodeP);
 
 void processDiff(cv::cuda::GpuMat &img1, cv::cuda::GpuMat &img2, cv::cuda::GpuMat &src, cv::cuda::GpuMat &result);
 
-void caculateSim(cv::Mat &img1, cv::Mat &img2, cv::Mat& result, int binSize);
+void caculateSim(cv::Mat &img1, cv::Mat &img2, cv::Mat &result, int binSize);
+
+void diffsquare(cv::cuda::GpuMat &src, cv::cuda::GpuMat &filter, cv::cuda::GpuMat &result);
 
 // void test(uchar *input1, uchar *input2, int imgWidth, int imgHeight, int channels, cv::Mat& tmp);
-

@@ -331,5 +331,49 @@ void caculateSim(cv::Mat &img1, cv::Mat &img2, cv::Mat& result, int binSize)
     std::cout << std::endl;
 }
 
+__global__ void diffsquarekernel(float* src, int srcstep, float* filter, int filterstep, float* result, int resizeStep, int src_w, int src_h, int filter_w, int filter_h, int boundary)
+{
+    const int x = blockDim.x * blockIdx.x + threadIdx.x;
+    const int y = blockDim.y * blockIdx.y + threadIdx.y;
+    
+    if(x < boundary || y < boundary || x + boundary >= src_w || y + boundary >= src_h)
+    {
+        return;
+    }
+    float valueSum = 0;
+    // if(x == 8 && y==8)
+    // {
+    for(int j = 0; j < filter_h; j++)
+    {
+        for(int i = 0; i < filter_w; i++)
+        {
+            int xshift = i - boundary;
+            int yshift = j - boundary;
+
+            float srcvalue = src[(y + yshift) * srcstep + (x + xshift)];
+            float filtervalue = filter[j * filterstep + i];
+            float diff = srcvalue - filtervalue;
+            
+            valueSum += diff * diff;
+        }
+    }
+        // printf("%f, %f, %f", valueSum, valueSum, valueSum);
+    // }
+
+    result[y * resizeStep + x] = valueSum;
+
+}
+
+void diffsquare(cv::cuda::GpuMat & src, cv::cuda::GpuMat & filter, cv::cuda::GpuMat & result)
+{
+    int sizeH = src.rows;
+    int sizeW = src.cols;
+    int boundary = filter.rows / 2;
+    const dim3 blockDim(8, 8);
+    const dim3 gridDim(iDivUp(sizeW, blockDim.x), iDivUp(sizeH,blockDim.y));
+    diffsquarekernel<<<gridDim, blockDim>>>(src.ptr<float>(), src.step / sizeof(float), filter.ptr<float>(), filter.step / sizeof(float), result.ptr<float>(), result.step / sizeof(float), src.cols, src.rows, filter.cols, filter.rows, boundary);
+    // std::cout << std::endl;
+}
+
 
 

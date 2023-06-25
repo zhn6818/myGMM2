@@ -119,6 +119,6 @@ add_subdirectory(kmeans_gmm)
 
 cuda_add_executable(meansquare meansquare.cpp)
 target_link_libraries(meansquare ${OpenCV_LIBS})
-
+target_link_libraries(meansquare cumygmm)
 
 
