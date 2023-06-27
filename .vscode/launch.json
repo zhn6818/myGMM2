@@ -119,6 +119,15 @@
             ],
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "build"
+        },
+        {
+            "type": "cppdbg",
+            "request": "launch",
+            "name": "EM",
+            "program": "${workspaceFolder}/build/kmeans_gmm/EM",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "build"
         }
     ]
 }

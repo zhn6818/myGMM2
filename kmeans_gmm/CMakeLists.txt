@@ -6,3 +6,6 @@ add_definitions(-O0 -g)
 add_executable(kmeans kmeans-test.cpp KMeans.cpp KMeans.h)
 
 add_executable(kmeans_main kmeans_main.cpp)
+
+add_executable(EM opencvEM.cpp)
+target_link_libraries(EM ${OpenCV_LIBS})

@@ -53,6 +53,8 @@ if (EXISTS ${HOST_PATH})
     ${HOST_PATH}/opencv/lib/libopencv_cudacodec.so
     ${HOST_PATH}/opencv/lib/libopencv_photo.so
     ${HOST_PATH}/opencv/lib/libopencv_xfeatures2d.so
+    ${HOST_PATH}/opencv/lib/libopencv_ml.so
+    ${HOST_PATH}/opencv/lib/libopencv_objdetect.so
 )
 ELSE()
     find_package(OpenCV REQUIRED)
