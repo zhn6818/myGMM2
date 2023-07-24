@@ -24,4 +24,6 @@ void caculateSim(cv::Mat &img1, cv::Mat &img2, cv::Mat &result, int binSize);
 
 void diffsquare(cv::cuda::GpuMat &src, cv::cuda::GpuMat &filter, cv::cuda::GpuMat &result);
 
+void testArray();
+
 // void test(uchar *input1, uchar *input2, int imgWidth, int imgHeight, int channels, cv::Mat& tmp);

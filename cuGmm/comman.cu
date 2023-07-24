@@ -343,6 +343,7 @@ __global__ void diffsquarekernel(float* src, int srcstep, float* filter, int fil
     float valueSum = 0;
     // if(x == 8 && y==8)
     // {
+    //共享内存 方案 行不通
     for(int j = 0; j < filter_h; j++)
     {
         for(int i = 0; i < filter_w; i++)
@@ -373,6 +374,67 @@ void diffsquare(cv::cuda::GpuMat & src, cv::cuda::GpuMat & filter, cv::cuda::Gpu
     const dim3 gridDim(iDivUp(sizeW, blockDim.x), iDivUp(sizeH,blockDim.y));
     diffsquarekernel<<<gridDim, blockDim>>>(src.ptr<float>(), src.step / sizeof(float), filter.ptr<float>(), filter.step / sizeof(float), result.ptr<float>(), result.step / sizeof(float), src.cols, src.rows, filter.cols, filter.rows, boundary);
     // std::cout << std::endl;
+}
+
+__global__ void initValue(A* dev_testA, int m, int n)
+{
+    printf("%d  %d \n", m, n);
+
+    for(int i = 0; i < m; i++)
+    {
+        for(int j = 0; j < n; j++)
+        {
+            // (testA + i)->a[j]  = j;
+            dev_testA[i].dev_a[j] = j;
+        }
+    }
+}
+
+void testArray()
+{
+    std::cout << "testArray start " << std::endl;
+    A * testA;
+    int m = 10, n = 20;
+    testA = (A*)malloc(m * sizeof(A));
+    A *dev_testA;
+    cudaMalloc((void**)&dev_testA, m * sizeof(A));
+    for(int i = 0; i < m; i++)
+    {
+        testA[i].a = (float*)malloc(n * sizeof(float));
+        cudaMalloc((void**)&testA[i].dev_a, n * sizeof(float));
+        cudaMemset(testA[i].dev_a, 0, n * sizeof(float));
+    }
+    
+    cudaMemcpy(dev_testA, testA, m * sizeof(A), cudaMemcpyHostToDevice);
+    for(int i = 0; i < m; i++)
+    {
+        cudaMemcpy(testA[i].dev_a, testA[i].a, n * sizeof(float), cudaMemcpyHostToDevice);
+    }
+    initValue<<<1, 1>>>(dev_testA, m, n);
+
+    for(int i = 0; i < m; i++)
+    {
+        cudaMemcpy(testA[i].a, testA[i].dev_a, n * sizeof(float), cudaMemcpyDeviceToHost);
+    }
+
+    for(int i = 0; i < m; i++)
+    {
+        for(int j = 0; j < n; j++)
+        {
+            std::cout << testA[i].a[j] << " ";
+        }
+        std::cout << std::endl;
+    }
+
+
+    for(int i = 0; i < m; i++)
+    {
+        free(testA[i].a);
+    }
+    free(testA);
+
+
+    std::cout << "testArray end" << std::endl;
 }
 
 

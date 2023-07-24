@@ -8,6 +8,11 @@
 #define DEBUGINFO 0
 #define ArraySize (MaxSize + 1)
 
+struct A{
+    float *a;
+    float *dev_a;
+};
+
 struct GaussianGpu
 {
     float covariance; // 4

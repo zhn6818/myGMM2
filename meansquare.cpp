@@ -6,10 +6,12 @@
 #include "cuda_runtime_api.h"
 #include "comman.h"
 
-
 int main(int argc, char **argv)
 {
     std::cout << "this is a test programme" << std::endl;
+
+    testArray();
+
     const int size = 4096;
     float *data = new float[size];
     float valueInfo = 300;
@@ -40,8 +42,6 @@ int main(int argc, char **argv)
     cv::cuda::GpuMat result = cv::cuda::GpuMat(img.rows, img.cols, CV_32FC1, cv::Scalar::all(0));
 
     diffsquare(img, imgfilter, result);
-
-    
 
     cv::Mat img_cpu;
     result.download(img_cpu);
