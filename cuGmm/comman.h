@@ -30,6 +30,15 @@ struct A
             }
         }
     }
+    __device__ float GetValue(int num)
+    {
+        float value = 0;
+        for (int i = 0; i < num; i++)
+        {
+            value += dev_a[i];
+        }
+        return value;
+    }
 };
 
 inline __device__ __host__ int iDivUp(int a, int b) { return (a % b != 0) ? (a / b + 1) : (a / b); }

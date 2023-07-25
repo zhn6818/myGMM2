@@ -385,9 +385,11 @@ __global__ void initValue(A* dev_testA, int m, int n)
     for(int j = 0; j < n; j++)
     {
         // (testA + i)->a[j]  = j;
-        dev_testA[indexX].dev_a[j] = j;
+        dev_testA[indexX].dev_a[j] = j + indexX;
     }
     dev_testA[indexX].sort(n);
+    float value = dev_testA[indexX].GetValue(2);
+    printf("%d %f\n", indexX, value);
     // }
 
 }
