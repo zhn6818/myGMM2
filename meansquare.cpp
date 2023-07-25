@@ -10,7 +10,7 @@ int main(int argc, char **argv)
 {
     std::cout << "this is a test programme" << std::endl;
 
-    testArray();
+    // testArray();
 
     const int size = 4096;
     float *data = new float[size];
