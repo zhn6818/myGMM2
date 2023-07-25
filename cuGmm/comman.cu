@@ -378,16 +378,18 @@ void diffsquare(cv::cuda::GpuMat & src, cv::cuda::GpuMat & filter, cv::cuda::Gpu
 
 __global__ void initValue(A* dev_testA, int m, int n)
 {
-    printf("%d  %d \n", m, n);
-
-    for(int i = 0; i < m; i++)
+    // printf("%d  %d \n", m, n);
+    int indexX = threadIdx.x;
+    // for(int i = 0; i < m; i++)
+    // {
+    for(int j = 0; j < n; j++)
     {
-        for(int j = 0; j < n; j++)
-        {
-            // (testA + i)->a[j]  = j;
-            dev_testA[i].dev_a[j] = j;
-        }
+        // (testA + i)->a[j]  = j;
+        dev_testA[indexX].dev_a[j] = j;
     }
+    dev_testA[indexX].sort(n);
+    // }
+
 }
 
 void testArray()
@@ -397,20 +399,22 @@ void testArray()
     int m = 10, n = 20;
     testA = (A*)malloc(m * sizeof(A));
     A *dev_testA;
+    
     cudaMalloc((void**)&dev_testA, m * sizeof(A));
     for(int i = 0; i < m; i++)
     {
         testA[i].a = (float*)malloc(n * sizeof(float));
+        // 设备内存的初始化必须通过主机端指针来进行，会在设备端生成同名的指针
         cudaMalloc((void**)&testA[i].dev_a, n * sizeof(float));
         cudaMemset(testA[i].dev_a, 0, n * sizeof(float));
     }
     
     cudaMemcpy(dev_testA, testA, m * sizeof(A), cudaMemcpyHostToDevice);
-    for(int i = 0; i < m; i++)
-    {
-        cudaMemcpy(testA[i].dev_a, testA[i].a, n * sizeof(float), cudaMemcpyHostToDevice);
-    }
-    initValue<<<1, 1>>>(dev_testA, m, n);
+    // for(int i = 0; i < m; i++)
+    // {
+    //     cudaMemcpy(testA[i].dev_a, testA[i].a, n * sizeof(float), cudaMemcpyHostToDevice);
+    // }
+    initValue<<<1, 10>>>(dev_testA, m, n);
 
     for(int i = 0; i < m; i++)
     {

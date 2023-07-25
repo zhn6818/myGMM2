@@ -10,6 +10,28 @@
 
 #include "gpuGmm.h"
 
+struct A
+{
+    float *a;
+    float *dev_a;
+    __device__ void sort(int size)
+    {
+        int w;
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0; j < size - 1; j++)
+            {
+                if (dev_a[j] < dev_a[j + 1])
+                {
+                    w = dev_a[j];
+                    dev_a[j] = dev_a[j + 1];
+                    dev_a[j + 1] = w;
+                }
+            }
+        }
+    }
+};
+
 inline __device__ __host__ int iDivUp(int a, int b) { return (a % b != 0) ? (a / b + 1) : (a / b); }
 
 void InitNode(cv::cuda::GpuMat &tmpImg, float *nodeP, double cov);
