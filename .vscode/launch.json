@@ -128,6 +128,48 @@
             "args": [],
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "build"
+        },
+        {
+            "type": "cppdbg",
+            "request": "launch",
+            "name": "testFaiss",
+            "program": "${workspaceFolder}/build/faiss/testFaiss",
+            "args": [],
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "将反汇编风格设置为 Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "build"
+        },
+        {
+            "type": "cppdbg",
+            "request": "launch",
+            "name": "Flat_test",
+            "program": "${workspaceFolder}/build/faiss/Flat_test",
+            "args": [],
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "将反汇编风格设置为 Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "build"
         }
     ]
 }

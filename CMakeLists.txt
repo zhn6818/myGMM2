@@ -95,6 +95,13 @@ set(ONNXRUNTIME_LIB ${ONNXRUNTIME_ROOT_PATH}/build/Linux/Release/libonnxruntime.
 include_directories(${ONNXRUNTIME_INCLUDE_DIRS})
 
 
+set(FAISS_ROOT_PATH /data1/zhn/macdata/faiss/build/install)
+set(FAISS_INCLUDE_DIRS ${FAISS_ROOT_PATH}/include)
+set(FAISS_LIB ${FAISS_ROOT_PATH}/lib/libfaiss.so)
+
+include_directories(${FAISS_INCLUDE_DIRS})
+
+
 include_directories("${PROJECT_SOURCE_DIR}/myGmm")
 add_subdirectory(myGmm)
 
@@ -118,6 +125,8 @@ add_subdirectory(threadPool)
 add_subdirectory(ort)
 
 add_subdirectory(kmeans_gmm)
+
+add_subdirectory(faiss)
 
 cuda_add_executable(meansquare meansquare.cpp)
 target_link_libraries(meansquare ${OpenCV_LIBS})
