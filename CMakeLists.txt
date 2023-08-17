@@ -3,7 +3,7 @@ project(zhang)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_definitions(-O0 -g)
+add_definitions(-O4 -g)
 
 find_package(CUDA REQUIRED)
 set(CUDA_NVCC_FLAGS
