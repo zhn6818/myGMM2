@@ -2,24 +2,31 @@
 #include <mutex>
 #include <thread>
 #include <vector>
+#include <time.h>
+#include <unistd.h>
+#include <random>
+#include <ctime>
 
 std::mutex g_mutex;
 int g_count = 0;
 
+
 void Counter()
 {
-    // g_mutex.lock();
-
+    g_mutex.lock();
+    // srand(time(nullptr));
     int i = ++g_count;
-    std::cout << "count: " << i << std::endl;
+    int nn = rand() % 10;
+    sleep(nn);
+    std::cout << "count: " << i << "  sleep: " << nn << std::endl;
 
     // 前面代码如有异常，unlock 就调不到了。
-    // g_mutex.unlock();
+    g_mutex.unlock();
 }
 
 int main()
 {
-    const std::size_t SIZE = 4;
+    const std::size_t SIZE = 6;
 
     // 创建一组线程。
     std::vector<std::thread> v;
